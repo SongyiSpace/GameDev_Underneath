@@ -29,7 +29,7 @@ public class RabbitInteract : MonoBehaviour
         }
         if (currentScene == "Home")
         {
-            homeEventManager.NextEvent();
+            homeEventManager.DropRabbit();
         }
 
     }

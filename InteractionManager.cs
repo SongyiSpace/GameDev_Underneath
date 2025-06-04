@@ -41,13 +41,14 @@ public class InteractionManager : MonoBehaviour
         microisOpen = !microisOpen;
         microAnimator.SetBool("isOpen", microisOpen);
     }
+
     private void Food1Interact()
     {
-        homeEventManager.NextEvent();
+        homeEventManager.PickUpFridgeFood();
     }
     private void Food2Interact()
     {
-        homeEventManager.NextEvent();
+        homeEventManager.MicroFood();
     }
 
 }

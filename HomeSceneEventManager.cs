@@ -3,63 +3,97 @@ using UnityEngine;
 
 public class HomeSceneEventManager : MonoBehaviour
 {
-    private int eventIndex = 1;
     private MonologueManager monoManager;
     private GameObject rabbit;
     private TransparentSwitcher switcher;
+    private Animator microAnimator;
     [SerializeField] private GameObject food1;
     [SerializeField] private GameObject food2;
+    [SerializeField] private GameObject microDoor;
+
+    enum GameStep
+    {
+        step1_Intro,
+        step2_DropRabbit,
+        step3_PickUpFood_f,
+        step4_DropFood_m,
+        step5_PickUpFood_m
+    }
+    GameStep currentStep;
 
     void Start()
     {
         monoManager = FindFirstObjectByType<MonologueManager>();
         switcher = FindFirstObjectByType<TransparentSwitcher>();
         rabbit = GameObject.Find("rabbit");
+        microAnimator = microDoor.GetComponent<Animator>();
 
         switcher.SwitchToTransparent(rabbit);
         switcher.SwitchToTransparent(food2);
 
-        NextEvent();
+        StartMonologue();
     }
 
 
-    public void NextEvent()
+    //step1
+    public void StartMonologue()
     {
-        eventIndex++;
-        switch (eventIndex)
+        if (currentStep == GameStep.step1_Intro)
         {
-            case 1:
-                StartMonologue();
-                break;
-            case 2:
-                DropRabbit();
-                break;
-            case 3:
-                pickUpFood();
-                break;
-            case 4:
-                DropFood();
-                break;
+            monoManager.HideMonologue();
+            monoManager.ShowMonologue(Monologue.Home_Start);
+
+            currentStep = GameStep.step2_DropRabbit;
         }
     }
 
-    void StartMonologue()
+    //step2
+    public void DropRabbit()
     {
-        monoManager.HideMonologue();
-        monoManager.ShowMonologue(Monologue.Home_Start);
+        if (currentStep == GameStep.step2_DropRabbit)
+        {
+            switcher.SwitchToOrigin(rabbit);
+            monoManager.ShowMonologue(Monologue.Home_LetsEat);
+            food1.GetComponent<Collider>().enabled = true;
+            currentStep = GameStep.step3_PickUpFood_f;
+        }
+
     }
-    void DropRabbit()
+
+    //step3
+    public void PickUpFridgeFood()
     {
-        switcher.SwitchToOrigin(rabbit);
+        if (currentStep == GameStep.step3_PickUpFood_f)
+        {
+            food1.SetActive(false);
+            food2.GetComponent<Collider>().enabled = true;
+            currentStep = GameStep.step4_DropFood_m;
+        }
+
     }
-    void pickUpFood()
+
+    public void MicroFood()
     {
-        food1.SetActive(false);
+        if (currentStep == GameStep.step4_DropFood_m) //step4
+        {
+            switcher.SwitchToOrigin(food2);
+            microAnimator.SetBool("isOpen", false);
+            monoManager.ShowMonologueForSeconds(Monologue.Home_WaitFood, 5f);
+            Invoke(nameof(OpenMicrowave), 5f);
+            currentStep = GameStep.step5_PickUpFood_m;
+        }
+        else if (currentStep == GameStep.step5_PickUpFood_m) //step5
+        {
+            food2.SetActive(false);
+
+            // currentStep = GameStep.step5_PickUpFood_m;
+        }
     }
-    void DropFood()
+    private void OpenMicrowave()
     {
-        switcher.SwitchToOrigin(food2);
+        microAnimator.SetBool("isOpen", true);
     }
+    
 
 
 }

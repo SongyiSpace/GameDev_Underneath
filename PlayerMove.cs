@@ -35,11 +35,11 @@ public class PlayerMove : MonoBehaviour
         LookUpdate();
     }
 
-    void EnableMovement()
-    {
-        if (monoManager.IsMonologueActive()) canMove = false;
-        else canMove = true;
-    }
+    // void EnableMovement()
+    // {
+    //     if (monoManager.IsMonologueActive()) canMove = false;
+    //     else canMove = true;
+    // }
 
     //이동 함수
     void MoveUpdate()
@@ -48,7 +48,6 @@ public class PlayerMove : MonoBehaviour
         float xInput = Input.GetAxisRaw("Horizontal"); //좌우 방향키
         float yInput = Input.GetAxisRaw("Vertical"); //상하 방향키
         //Raw넣어줘야 즉각적반응. Raw없으면 서서히 진행되어서 딜레이가 조금 생김
-        //Debug.Log("GetAxisRaw :" + xInput + "-" + yInput);
 
         Vector3 move = (transform.forward * yInput + transform.right * xInput).normalized;
 

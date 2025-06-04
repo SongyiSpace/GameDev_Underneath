@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -9,13 +10,9 @@ public class MonologueManager : MonoBehaviour
 
     private string[] lines;
     private int currentIndex = -1;
+    public bool isBlocked = false;
 
     private System.Action onComplete;
-
-    void Start()
-    {
-
-    }
 
     void Awake()
     {
@@ -27,7 +24,7 @@ public class MonologueManager : MonoBehaviour
     void Update()
     {
         // 대사가 보이는 상태면 스페이스바 눌렀을 때 다음 대사 출력
-        if (monologueBG.activeSelf && Input.GetKeyDown(KeyCode.Space)) ShowNextLine();
+        if (monologueBG.activeSelf && Input.GetKeyDown(KeyCode.Space) && isBlocked == false) ShowNextLine();
     }
 
     // 대사 배열 받아서 보여주기 + 플레이어 조작 비활성화
@@ -59,24 +56,41 @@ public class MonologueManager : MonoBehaviour
         {
             HideMonologue();
             onComplete?.Invoke(); // 콜백 실행
-            onComplete = null; 
+            onComplete = null;
         }
     }
 
     // 대사UI 숨기기 + 플레이어 조작 활성화
     public void HideMonologue()
     {
-        monologueBG.SetActive(false); 
+        monologueBG.SetActive(false);
 
         playerMove.canMove = true;
 
         lines = null;
         currentIndex = -1;
     }
-    
+
     //대사 활성화 상태
     public bool IsMonologueActive()
     {
         return monologueBG.activeSelf;
     }
+    
+
+    //특정 시간동안 대사를 보여주면서 대기
+    public void ShowMonologueForSeconds(string[] messages, float waitSeconds)
+    {
+        StartCoroutine(ShowAndHideMonologueRoutine(messages, waitSeconds));
+    }
+
+    private IEnumerator ShowAndHideMonologueRoutine(string[] messages, float waitSeconds)
+    {
+        ShowMonologue(messages);
+        isBlocked = true;
+        yield return new WaitForSeconds(waitSeconds);
+        HideMonologue();
+        isBlocked = false;
+    }
+
 }

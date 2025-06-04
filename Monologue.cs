@@ -19,8 +19,10 @@ public static class Monologue
         "화분 앞에 둬야겠어"
     };
     public static readonly string[] Home_LetsEat = {
-        "됐다",
-        "배가 많이 고프다",
+        "배가 고프다",
         "저녁을 좀 먹어야겠어"
+    };
+    public static readonly string[] Home_WaitFood = {
+        "조금 기다리자"
     };
 }
