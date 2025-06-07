@@ -65,8 +65,6 @@ public class SelectionManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
                     GameObject targetObject = hit.collider.gameObject;
-                    
-                    Debug.Log("클릭받은 오브젝트 :" + targetObject.name);
 
                     if (targetObject.name == "rabbit")
                     {

@@ -24,7 +24,7 @@ public class RabbitInteract : MonoBehaviour
         {
             monoManager.ShowMonologue(Monologue.AfterWork_MeetRabbit, () =>
             {
-                animatorController.PickUpRabbit();
+                animatorController.Ani_PickUpRabbit();
             });
         }
         if (currentScene == "Home")
