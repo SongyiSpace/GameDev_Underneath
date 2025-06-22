@@ -47,7 +47,12 @@ public static class Monologue
         "정말 뭐야 짜증나게 . ."
     };
     public static readonly string[] Home_EndShower = {
-        "샤워 끝났다... 자러가야지..."
+        "아 개운해",
+        "이제 자러가야지"
+    };
+    public static readonly string[] Home_HaveToLightOff = {
+        "밝아서 잠을 못자겠어",
+        "모든 불을 끄고 자자"
     };
 
 

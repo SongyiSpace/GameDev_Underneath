@@ -18,15 +18,13 @@ public class HomeSceneEventManager : MonoBehaviour
     [SerializeField] private GameObject microDoor;
     [SerializeField] private GameObject computer;
     [SerializeField] private GameObject showerHead;
-    [SerializeField] private GameObject bathPointLight;
-    [SerializeField] private GameObject bathLight;
-    [SerializeField] private GameObject lightSwitch;
+    [SerializeField] private GameObject[] bathLights;
+    [SerializeField] private GameObject bathLightSwitch;
+    [SerializeField] private GameObject bed;
     [SerializeField] private ParticleSystem waterFall;
 
-
-
-    private float microwaveWaitTime = 2f;
-    private float showerTime1 = 3f;
+    private float microwaveWaitTime = 5f;
+    private float showerTime1 = 7f;
 
     enum GameStep
     {
@@ -36,7 +34,7 @@ public class HomeSceneEventManager : MonoBehaviour
         step4_DropFood_m,
         step5_PickUpFood_m,
         step6_EatFood,
-        step7_Study,
+        step7_Work,
         step8_Shower,
         step9_Shower2,
         step10_GoToSleep
@@ -129,21 +127,21 @@ public class HomeSceneEventManager : MonoBehaviour
             animatorController.Ani_EatFood();
             computer.GetComponent<Collider>().enabled = true;
 
-            currentStep = GameStep.step7_Study;
+            currentStep = GameStep.step7_Work;
         }
     }
 
     //---step7---//
-    public void Study()
+    public void Work()
     {
-        if (currentStep == GameStep.step7_Study)
+        if (currentStep == GameStep.step7_Work)
         {
             computer.GetComponent<Collider>().enabled = false;
             player.GetComponent<Collider>().enabled = false;
             showerHead.GetComponent<Collider>().enabled = true;
-            lightSwitch.GetComponent<Collider>().enabled = true;
+            bathLightSwitch.GetComponent<Collider>().enabled = true;
 
-            animatorController.Ani_Study();
+            animatorController.Ani_Work();
 
             currentStep = GameStep.step8_Shower;
         }
@@ -163,12 +161,13 @@ public class HomeSceneEventManager : MonoBehaviour
     }
     private void TurnOffLights()
     {
-        FindFirstObjectByType<InteractionManager>().ToggleSwitch();
+        FindFirstObjectByType<InteractionManager>().ToggleSwitch(bathLightSwitch, bathLights, ref interactionManager.isBathSwitchOn);
     }
     private IEnumerator WaitForSwitchOn()
     {
         //플레이어가 꺼진 불을 킬 때까지 기다린 후 불 켜면 step9로 넘어감
-        yield return new WaitForSeconds(showerTime1);
+        yield return new WaitForSeconds(showerTime1 + 1f);
+        Debug.Log("Wait on off :" + interactionManager.isBathSwitchOn);
         yield return new WaitUntil(() => interactionManager.isBathSwitchOn);
         currentStep = GameStep.step9_Shower2;
     }
@@ -180,9 +179,24 @@ public class HomeSceneEventManager : MonoBehaviour
         {
             Trigger trigger = FindFirstObjectByType<Trigger>();
             StartCoroutine(trigger.ShowerTrigger(() => currentStep = GameStep.step10_GoToSleep));
+            bed.GetComponent<Collider>().enabled = true;
         }
     }
-
-
-
+    //---step10---//
+    public void GoToSleep()
+    {
+        if (currentStep == GameStep.step10_GoToSleep)
+        {
+            if (interactionManager.isBathSwitchOn || interactionManager.isHallSwitchOn)
+            {
+                monoManager.ShowMonologue(Monologue.Home_HaveToLightOff);
+            }
+            else
+            {
+                bed.GetComponent<Collider>().enabled = false;
+                animatorController.Ani_Sleep();
+            }
+            // currentStep = GameStep.step11
+        }
+    }
 }

@@ -8,26 +8,36 @@ public class AnimatorController : MonoBehaviour
     private GameObject rabbit;
     private GameObject player;
     private Transform cam;
+    private GameObject lamp;
     private ScreenFader screenFader;
     private MonologueManager monoManager;
 
     [SerializeField] private GameObject food3;
 
-    private float eatTime = 2f;
+    private float eatTime = 7f;
 
     private Animator playerAnimator;
+    private Animator lampAnimator;
 
     void Start()
     {
         playerMove = GameObject.Find("Player").GetComponent<PlayerMove>();
         rabbit = GameObject.Find("rabbit");
         player = GameObject.Find("Player");
+        lamp = GameObject.Find("lamp");
         cam = Camera.main.transform;
         screenFader = FindFirstObjectByType<ScreenFader>();
         monoManager = FindFirstObjectByType<MonologueManager>();
+        string currentScene = SceneManager.GetActiveScene().name;
 
-        playerAnimator = player.GetComponent<Animator>();
-        playerAnimator.enabled = false;
+
+        if (currentScene == "Home")
+        {
+            playerAnimator = player.GetComponent<Animator>();
+            playerAnimator.enabled = false;
+            lampAnimator = lamp.GetComponent<Animator>();
+        }
+
     }
 
     //================[ 공통 메소드 ]================//
@@ -35,7 +45,7 @@ public class AnimatorController : MonoBehaviour
     {
         yield return new WaitUntil(() =>
             playerAnimator.GetCurrentAnimatorStateInfo(0).IsName(stateName) &&
-            playerAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f);
+            playerAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f);
     }
     private IEnumerator WaitForMonologue(string[] monologueMessage)
     {
@@ -147,19 +157,18 @@ public class AnimatorController : MonoBehaviour
 
         playerMove.canMove = true;
 
-        monoManager.ShowMonologue(Monologue.Home_LetsWork); //수정필요
+        monoManager.ShowMonologue(Monologue.Home_LetsWork);
     }
 
     //================= [ 일하는 애니메이션 ] =================//
-    public void Ani_Study()
+    public void Ani_Work()
     {
-        StartCoroutine(StudyAnimation(cam.transform, player.transform));
+        StartCoroutine(WorkAnimation(cam.transform, player.transform));
     }
-    private IEnumerator StudyAnimation(Transform cam, Transform player)
+    private IEnumerator WorkAnimation(Transform cam, Transform player)
     {
         playerMove.canMove = false;
 
-        // 1. 정면보기
         player.transform.position = new Vector3(1.1f, 2.27f, 0.28f);
         player.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
         cam.localPosition = new Vector3(0f, 0.42f, 0f);
@@ -168,38 +177,30 @@ public class AnimatorController : MonoBehaviour
         playerAnimator.enabled = true;
 
         playerAnimator.Play("PlayerStayOrigin");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(7f);
 
-        // 2. 오른쪽 보기 애니메이션
         playerAnimator.SetBool("focusSound", true);
+
         yield return WaitForAnimation("PlayerLookRight");
 
-        // 3. 모놀로그 : ?
         yield return StartCoroutine(WaitForMonologue(Monologue.Doubt));
 
-        // 4. 정면 보기 애니메이션
         playerAnimator.SetBool("focusSound", false);
         yield return WaitForAnimation("PlayerLookOrigin");
 
-        // 5. 정면 유지
         playerAnimator.Play("PlayerStayOrigin");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(7f);
 
-        // 6. 오른쪽 보기 애니메이션
         playerAnimator.SetBool("focusSound", true);
         yield return WaitForAnimation("PlayerLookRight");
 
-        // 7. 오른쪽 본 채로 1초 대기
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(3f);
 
-        // 8. 정면 보기 애니메이션
         playerAnimator.SetBool("focusSound", false);
         yield return WaitForAnimation("PlayerLookOrigin");
 
-        // 9. 모놀로그
         yield return StartCoroutine(WaitForMonologue(Monologue.Home_LetsShower));
 
-        //10. 일어나고 플레이어 조작 통제 해제
         player.transform.position = new Vector3(0.4f, 2.27f, -0.12f);
         player.transform.rotation = Quaternion.Euler(0f, 80f, 0f);
         cam.localPosition = new Vector3(0f, 0.54f, 0f);
@@ -210,8 +211,24 @@ public class AnimatorController : MonoBehaviour
         playerAnimator.enabled = false;
         player.GetComponent<Collider>().enabled = true;
     }
-
-
     
+    //================= [ 침대 눕는 애니메이션 ] =================//
+    public void Ani_Sleep()
+    {
+        StartCoroutine(SleepAnimation(cam.transform, player.transform));
+    }
+    private IEnumerator SleepAnimation(Transform cam, Transform player)
+    {
+        playerMove.canMove = false;
+
+        player.transform.position = new Vector3(1.2f, 2.27f, -2.2f);
+        player.transform.rotation = Quaternion.Euler(90f, 180f, 0f);
+        cam.localRotation = Quaternion.Euler(15f, 80f, 0f);
+
+        yield return new WaitForSeconds(5f);
+
+        lampAnimator.Play("lampFallDown");
+    }
+
 
 }

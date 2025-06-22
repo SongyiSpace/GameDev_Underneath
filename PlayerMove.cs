@@ -35,12 +35,6 @@ public class PlayerMove : MonoBehaviour
         LookUpdate();
     }
 
-    // void EnableMovement()
-    // {
-    //     if (monoManager.IsMonologueActive()) canMove = false;
-    //     else canMove = true;
-    // }
-
     //이동 함수
     void MoveUpdate()
     {

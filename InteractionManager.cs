@@ -13,9 +13,16 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private GameObject food3;
     [SerializeField] private GameObject computer;
     [SerializeField] private GameObject showerHead;
-    [SerializeField] private GameObject switchToggleObject;
-    [SerializeField] private GameObject[] lightsToControl;
+    [SerializeField] private GameObject bed;
 
+    [SerializeField] private GameObject bathSwitchToggleObject;
+    [SerializeField] private GameObject[] bathLights;
+
+    [SerializeField] private GameObject hallSwitchToggleObject;
+    [SerializeField] private GameObject[] hallLights;
+
+    public bool isBathSwitchOn = true;
+    public bool isHallSwitchOn = true;
 
     private Animator fridgeAnimator;
     private Animator microAnimator;
@@ -23,7 +30,6 @@ public class InteractionManager : MonoBehaviour
     private bool fridgeIsOpen = false;
     private bool microIsOpen = false;
     private bool bathDoorIsOpen = false;
-    public bool isBathSwitchOn = true;
 
     private HomeSceneEventManager homeEventManager;
 
@@ -44,9 +50,11 @@ public class InteractionManager : MonoBehaviour
             { "food1", () => homeEventManager.PickUpFridgeFood() },
             { "food2", () => homeEventManager.MicroFood() },
             { "food3", () => homeEventManager.EatFood() },
-            { "computer", () => homeEventManager.Study() },
+            { "computer", () => homeEventManager.Work() },
             { "showerHead", () => homeEventManager.Shower() },
-            { "lightSwitch", ()=> ToggleSwitch()}
+            { "bathLightSwitch", () => ToggleSwitch(bathSwitchToggleObject, bathLights, ref isBathSwitchOn) },
+            { "hallLightSwitch", () => ToggleSwitch(hallSwitchToggleObject, hallLights, ref isHallSwitchOn) },
+            { "bed", () => homeEventManager.GoToSleep() },
         };
     }
 
@@ -64,19 +72,19 @@ public class InteractionManager : MonoBehaviour
         isOpen = !isOpen;
         animator.SetBool("isOpen", isOpen);
     }
-    public void ToggleSwitch()
+    
+    public void ToggleSwitch(GameObject switchObject, GameObject[] lights, ref bool isSwitchOn)
     {
-        isBathSwitchOn = !isBathSwitchOn;
+        isSwitchOn = !isSwitchOn;
 
-        if (isBathSwitchOn)
+        switchObject.transform.localRotation = Quaternion.Euler(0, 0, isSwitchOn ? -50f : 0);
+
+        Debug.Log("Toggle on off :" + isSwitchOn);
+
+        foreach (GameObject lightObj in lights)
         {
-            switchToggleObject.transform.rotation = Quaternion.Euler(0, 0, -50f);
-            foreach (GameObject lightObj in lightsToControl) lightObj.SetActive(true);
-        }
-        else
-        {
-            switchToggleObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-            foreach (GameObject lightObj in lightsToControl) lightObj.SetActive(false);
+            if (lightObj != switchObject)
+                lightObj.SetActive(isSwitchOn);
         }
     }
 

@@ -14,7 +14,7 @@ public class ScreenFader : MonoBehaviour
         blackImage = blackScreen.GetComponent<Image>();
     }
 
-    //------------FadeOut------------//
+    //------------Fade Out------------//
     public void StartFadeOut(float duration, System.Action onComplete = null)
     {
         StartCoroutine(FadeOutRoutine(duration, onComplete));
@@ -38,7 +38,7 @@ public class ScreenFader : MonoBehaviour
         onComplete?.Invoke();  // 완료 콜백 호출
     }
 
-    //------------FadeIn------------//
+    //------------Fade In------------//
     public void StartFadeIn(float duration, System.Action onComplete = null)
     {
         StartCoroutine(FadeInRoutine(duration, onComplete));

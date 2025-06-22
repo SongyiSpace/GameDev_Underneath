@@ -4,14 +4,14 @@ using UnityEngine;
 public class Trigger : MonoBehaviour
 {
     [SerializeField] private Animator doorAnimator;
-    private GameObject player;
     private MonologueManager monoManager;
-    [SerializeField] private ParticleSystem waterFall;
+    private ParticleSystem waterFall;
+    [SerializeField] private GameObject doorCollider;
 
     void Awake()
     {
-        player = GameObject.Find("Player");
         monoManager = FindFirstObjectByType<MonologueManager>();
+        waterFall = GameObject.Find("waterFall").GetComponent<ParticleSystem>();
     }
 
     //----------Trigger Method----------//
@@ -25,8 +25,7 @@ public class Trigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (gameObject.name == "bathDoorCollider")
-            // if (other.gameObject == player)
+        if (gameObject == doorCollider)
             if (doorAnimator.GetBool("isOpen"))
                 doorAnimator.SetBool("isOpen", false);
     }
@@ -35,7 +34,7 @@ public class Trigger : MonoBehaviour
     public IEnumerator ShowerTrigger(System.Action onComplete)
     {
         monoManager.ShowMonologue(Monologue.Home_Showering);
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(5f);
 
         if (waterFall.isPlaying)
         {
