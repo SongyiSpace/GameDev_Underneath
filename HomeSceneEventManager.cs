@@ -57,6 +57,14 @@ public class HomeSceneEventManager : MonoBehaviour
         StartMonologue();
     }
 
+    void Update()
+    {
+        if (SoundManager.IsLoopSoundPlaying(LoopType.MICRO_BEEP) && microAnimator.GetBool("isOpen"))
+        {
+            SoundManager.StopLoopSound();
+        }
+    }
+
     //---step1---//
     public void StartMonologue()
     {
@@ -100,6 +108,8 @@ public class HomeSceneEventManager : MonoBehaviour
         {
             switcher.SwitchToOrigin(food2);
             microAnimator.SetBool("isOpen", false);
+            SoundManager.PlaySFXSound(SFXType.MICRO_WAITING);
+
             monoManager.ShowMonologueForSeconds(Monologue.Home_WaitMicro, microwaveWaitTime);
             Invoke(nameof(OpenMicrowave), microwaveWaitTime);
 
@@ -115,7 +125,8 @@ public class HomeSceneEventManager : MonoBehaviour
     }
     private void OpenMicrowave()
     {
-        microAnimator.SetBool("isOpen", true);
+        SoundManager.StopSFXSound();
+        SoundManager.PlayLoopSound(LoopType.MICRO_BEEP, 2f);
     }
 
     //---step6---//

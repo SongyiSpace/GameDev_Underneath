@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class InteractionManager : MonoBehaviour
 {
@@ -30,7 +29,6 @@ public class InteractionManager : MonoBehaviour
     private bool fridgeIsOpen = false;
     private bool microIsOpen = false;
     private bool bathDoorIsOpen = false;
-
     private HomeSceneEventManager homeEventManager;
 
     private Dictionary<string, Action> interactionActions;
@@ -72,7 +70,7 @@ public class InteractionManager : MonoBehaviour
         isOpen = !isOpen;
         animator.SetBool("isOpen", isOpen);
     }
-    
+
     public void ToggleSwitch(GameObject switchObject, GameObject[] lights, ref bool isSwitchOn)
     {
         isSwitchOn = !isSwitchOn;
@@ -87,6 +85,5 @@ public class InteractionManager : MonoBehaviour
                 lightObj.SetActive(isSwitchOn);
         }
     }
-
 
 }

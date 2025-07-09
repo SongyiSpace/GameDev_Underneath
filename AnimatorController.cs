@@ -108,7 +108,7 @@ public class AnimatorController : MonoBehaviour
         //5. 직진
         Vector3 originalPlayerPos = player.position;
         Vector3 targetPos = originalPlayerPos + player.forward * 10f;
-
+        SoundManager.PlayFootStepSound(FootstepType.ROADFOOTSTEP, 1f, 1.2f);
         screenFader.StartFadeOut(3f);
 
         t = 0;
@@ -140,9 +140,9 @@ public class AnimatorController : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
         food3.transform.Find("Fork").gameObject.SetActive(false);
-        //밥먹는 소리 클립 10초
+        SoundManager.PlaySFXSound(SFXType.EATING_DINNER);
         yield return new WaitForSeconds(eatTime);
-
+        SoundManager.StopSFXSound();
         food3.transform.Find("Fork").gameObject.SetActive(true);
 
         yield return WaitForMonologue(Monologue.Home_DoneEat);

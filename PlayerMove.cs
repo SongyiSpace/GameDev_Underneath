@@ -10,13 +10,14 @@ public class PlayerMove : MonoBehaviour
     private Vector3 rt;
     private MonologueManager monoManager;
     public bool canMove = false;
+    private string currentScene;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rt = transform.rotation.eulerAngles;
         monoManager = FindFirstObjectByType<MonologueManager>();
-        string currentScene = SceneManager.GetActiveScene().name;
+        currentScene = SceneManager.GetActiveScene().name;
 
         if (currentScene == "AfterWork")
         {
@@ -38,7 +39,6 @@ public class PlayerMove : MonoBehaviour
     //이동 함수
     void MoveUpdate()
     {
-
         float xInput = Input.GetAxisRaw("Horizontal"); //좌우 방향키
         float yInput = Input.GetAxisRaw("Vertical"); //상하 방향키
         //Raw넣어줘야 즉각적반응. Raw없으면 서서히 진행되어서 딜레이가 조금 생김
@@ -47,6 +47,16 @@ public class PlayerMove : MonoBehaviour
 
         rb.MovePosition(rb.position + move * speed * Time.fixedDeltaTime);
 
+        if (canMove)
+            if (xInput != 0 || yInput != 0)
+            {
+                if (currentScene == "AfterWork")
+                    SoundManager.PlayFootStepSound(FootstepType.ROADFOOTSTEP, 1f, 1.2f);
+                else if (currentScene == "Home")
+                    SoundManager.PlayFootStepSound(FootstepType.INDOORFOOTSTEP, 0.7f, 1.4f);                
+            }
+            else
+                SoundManager.StopFootStepSound();
     }
 
     //시야 회전 함수
