@@ -10,7 +10,7 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private GameObject food1;
     [SerializeField] private GameObject food2;
     [SerializeField] private GameObject food3;
-    [SerializeField] private GameObject computer;
+    [SerializeField] private GameObject monitor;
     [SerializeField] private GameObject showerHead;
     [SerializeField] private GameObject bed;
 
@@ -48,7 +48,7 @@ public class InteractionManager : MonoBehaviour
             { "food1", () => homeEventManager.PickUpFridgeFood() },
             { "food2", () => homeEventManager.MicroFood() },
             { "food3", () => homeEventManager.EatFood() },
-            { "computer", () => homeEventManager.Work() },
+            { "monitor", () => homeEventManager.Work() },
             { "showerHead", () => homeEventManager.Shower() },
             { "bathLightSwitch", () => ToggleSwitch(bathSwitchToggleObject, bathLights, ref isBathSwitchOn) },
             { "hallLightSwitch", () => ToggleSwitch(hallSwitchToggleObject, hallLights, ref isHallSwitchOn) },
@@ -74,10 +74,8 @@ public class InteractionManager : MonoBehaviour
     public void ToggleSwitch(GameObject switchObject, GameObject[] lights, ref bool isSwitchOn)
     {
         isSwitchOn = !isSwitchOn;
-
         switchObject.transform.localRotation = Quaternion.Euler(0, 0, isSwitchOn ? -50f : 0);
-
-        Debug.Log("Toggle on off :" + isSwitchOn);
+        SoundManager.PlaySFXSound(SFXType.LIGHTSWITCH);
 
         foreach (GameObject lightObj in lights)
         {

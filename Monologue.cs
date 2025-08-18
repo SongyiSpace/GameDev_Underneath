@@ -44,7 +44,7 @@ public static class Monologue
         "일은 이쯤하고 이제 씻자"
     };
     public static readonly string[] Home_Showering = {
-        "정말 뭐야 짜증나게 . ."
+        "정말 뭐야 짜증나게 . . 마저 씻자"
     };
     public static readonly string[] Home_EndShower = {
         "아 개운해",

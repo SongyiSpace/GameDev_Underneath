@@ -16,8 +16,9 @@ public class HomeSceneEventManager : MonoBehaviour
     [SerializeField] private GameObject food2;
     [SerializeField] private GameObject food3;
     [SerializeField] private GameObject microDoor;
-    [SerializeField] private GameObject computer;
+    [SerializeField] private GameObject monitor;
     [SerializeField] private GameObject showerHead;
+    [SerializeField] private GameObject bathDoor;
     [SerializeField] private GameObject[] bathLights;
     [SerializeField] private GameObject bathLightSwitch;
     [SerializeField] private GameObject bed;
@@ -87,7 +88,6 @@ public class HomeSceneEventManager : MonoBehaviour
             food1.GetComponent<Collider>().enabled = true;
             currentStep = GameStep.step3_PickUpFood_f;
         }
-
     }
 
     //---step3---//
@@ -136,7 +136,7 @@ public class HomeSceneEventManager : MonoBehaviour
         {
             switcher.SwitchToOrigin(food3);
             animatorController.Ani_EatFood();
-            computer.GetComponent<Collider>().enabled = true;
+            monitor.GetComponent<Collider>().enabled = true;
 
             currentStep = GameStep.step7_Work;
         }
@@ -147,12 +147,13 @@ public class HomeSceneEventManager : MonoBehaviour
     {
         if (currentStep == GameStep.step7_Work)
         {
-            computer.GetComponent<Collider>().enabled = false;
+            monitor.GetComponent<Collider>().enabled = false;
             player.GetComponent<Collider>().enabled = false;
-            showerHead.GetComponent<Collider>().enabled = true;
-            bathLightSwitch.GetComponent<Collider>().enabled = true;
 
             animatorController.Ani_Work();
+
+            showerHead.GetComponent<Collider>().enabled = true;
+            bathLightSwitch.GetComponent<Collider>().enabled = true;
 
             currentStep = GameStep.step8_Shower;
         }
@@ -163,28 +164,36 @@ public class HomeSceneEventManager : MonoBehaviour
     {
         if (currentStep == GameStep.step8_Shower)
         {
+            bathDoor.GetComponent<Collider>().enabled = false;
             showerHead.GetComponent<Collider>().enabled = false;
-            if (!waterFall.isPlaying)
-                waterFall.Play();
+            StartCoroutine(PlayShowerRoutine());
             Invoke("TurnOffLights", showerTime1);
             StartCoroutine(WaitForSwitchOn());
+        }
+    }
+    private IEnumerator PlayShowerRoutine()
+    {
+        if (!waterFall.isPlaying)
+        {
+            waterFall.Play();
+            SoundManager.PlaySFXSound(SFXType.SHOWERVALVE);
+            yield return new WaitForSeconds(0.5f);
+            SoundManager.Play3DSound(GameObject.Find("showerHead")?.GetComponent<AudioSource>(), SFXType.SHOWERING);
         }
     }
     private void TurnOffLights()
     {
         FindFirstObjectByType<InteractionManager>().ToggleSwitch(bathLightSwitch, bathLights, ref interactionManager.isBathSwitchOn);
+        bathDoor.GetComponent<Collider>().enabled = true;
     }
     private IEnumerator WaitForSwitchOn()
     {
-        //플레이어가 꺼진 불을 킬 때까지 기다린 후 불 켜면 step9로 넘어감
         yield return new WaitForSeconds(showerTime1 + 1f);
-        Debug.Log("Wait on off :" + interactionManager.isBathSwitchOn);
-        yield return new WaitUntil(() => interactionManager.isBathSwitchOn);
         currentStep = GameStep.step9_Shower2;
     }
 
     //---step9---//
-    public void StartShowerTriggerSequence()
+    public void Shower2()
     {
         if (currentStep == GameStep.step9_Shower2)
         {

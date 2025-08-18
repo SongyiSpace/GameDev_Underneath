@@ -4,10 +4,10 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMove : MonoBehaviour
 {
-    public float speed = 1f; //플레이어 속도
-    Rigidbody rb;
+    public float speed = 3f; //플레이어 속도(1f)
+    public Rigidbody rb;
     public float mouseSensitive = 400f;
-    private Vector3 rt;
+    public Vector3 rt;
     private MonologueManager monoManager;
     public bool canMove = false;
     private string currentScene;
@@ -23,10 +23,10 @@ public class PlayerMove : MonoBehaviour
         {
             //게임 시작 시 정면바라보기
             transform.rotation = Quaternion.LookRotation(Vector3.forward);
+            rt = transform.rotation.eulerAngles;
             monoManager.ShowMonologue(Monologue.AfterWork_Start);
         }
     }
-
     void FixedUpdate()
     {
         if (!canMove) return;
@@ -61,13 +61,15 @@ public class PlayerMove : MonoBehaviour
 
     //시야 회전 함수
     void LookUpdate(){
-        //처음에 회전이 되어있는 상태로 시작해서 초깃값 넣어줘야 함
-
         float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitive * Time.deltaTime;
         float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitive * Time.deltaTime;
 
+        //처음에 회전이 되어있는 상태로 시작해서 초깃값 넣어줘야 함
+
         rt.x -= mouseY;
         rt.y += mouseX;
+
+        rt.x = Mathf.Clamp(rt.x, -90f, 90f);//시야 위아래로 과한 이동 제한
 
         transform.rotation = Quaternion.Euler(0f, rt.y, 0f);
 

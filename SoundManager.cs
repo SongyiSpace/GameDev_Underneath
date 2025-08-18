@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
+//오브젝트 사운드 이름 : 오브젝트명_동작
 public enum BGMType
 {
     BGM_AFTERWORK
@@ -20,11 +21,15 @@ public enum SFXType
     WOODENDOOR_OPEN,
     WOODENDOOR_CLOSE,
     EATING_DINNER,
-    MICRO_WAITING
+    MICRO_WAITING,
+    SHOWERING,
+    SHOWERVALVE,
+    LIGHTSWITCH
 }
 public enum LoopType
 {
-    MICRO_BEEP
+    MICRO_BEEP,
+    KEYBOARD_TYPING
 }
 
 public class SoundManager : MonoBehaviour
@@ -43,15 +48,6 @@ public class SoundManager : MonoBehaviour
 
     private static LoopType? currentLoopPlaying = null;
     private static Coroutine loopCoroutine;
-
-    // private static readonly Dictionary<DoorType, (SoundType open, SoundType close)> doorSounds = new()
-    // {
-    //     { DoorType.Fridge, (SoundType.FRIDGE_OPEN, SoundType.FRIDGE_CLOSE) },
-    //     { DoorType.Microwave, (SoundType.MICRO_OPEN, SoundType.MICRO_CLOSE) },
-    //     { DoorType.Bathroom, (SoundType.BATH_OPEN, SoundType.BATH_CLOSE) }
-    // };
-
-
 
     void Awake()
     {
@@ -106,8 +102,7 @@ public class SoundManager : MonoBehaviour
             instance.SFXSource.Stop();
     }
 
-    //Loop & Reactive
-
+//Loop & Reactive
     public static void PlayLoopSound(LoopType sound, float delaySecond = 0f, float volume = 1f, float pitch = 1f)
     {
         StopLoopSound();
@@ -149,8 +144,8 @@ public class SoundManager : MonoBehaviour
         return currentLoopPlaying == sound && instance.loopSource.isPlaying;
     }
 
-// 애니메이션 기반 사운드 출력 (AnimSoundPlayer.cs)
-    public static void PlayAnimSound(AudioSource source, SFXType sound, float volume = 1f, float pitch = 1f)
+//3D 사운드 출력
+    public static void Play3DSound(AudioSource source, SFXType sound, float volume = 1f, float pitch = 1f)
     {
         AudioClip clip = instance.SFXList[(int)sound];
         source.volume = volume;
@@ -158,32 +153,41 @@ public class SoundManager : MonoBehaviour
 
         source.PlayOneShot(clip);
     }
+    public static void Stop3DSound(AudioSource source)
+    {
+        if (source != null)
+            source.Stop();
+    }
     
-
+// 애니메이션 클립 기반 사운드 출력 (AnimSoundPlayer.cs) <- 3D 사운드 이용
     public static void PlayAnimSound(string soundName)
     {
         switch (soundName)
         {
             case "Fridge_Open":
-                PlayAnimSound(GameObject.Find("fridgeDoor")?.GetComponent<AudioSource>(), SFXType.FRIDGE_OPEN);
+                Play3DSound(GameObject.Find("fridgeDoor")?.GetComponent<AudioSource>(), SFXType.FRIDGE_OPEN);
                 break;
 
             case "Fridge_Close":
-                PlayAnimSound(GameObject.Find("fridgeDoor")?.GetComponent<AudioSource>(), SFXType.FRIDGE_CLOSE);
+                Play3DSound(GameObject.Find("fridgeDoor")?.GetComponent<AudioSource>(), SFXType.FRIDGE_CLOSE);
                 break;
             case "Micro_Open":
-                PlayAnimSound(GameObject.Find("microDoor")?.GetComponent<AudioSource>(), SFXType.MICRO_OPEN);
+                Play3DSound(GameObject.Find("microDoor")?.GetComponent<AudioSource>(), SFXType.MICRO_OPEN);
                 break;
 
             case "Micro_Close":
-                PlayAnimSound(GameObject.Find("microDoor")?.GetComponent<AudioSource>(), SFXType.MICRO_CLOSE);
+                Play3DSound(GameObject.Find("microDoor")?.GetComponent<AudioSource>(), SFXType.MICRO_CLOSE);
                 break;
             case "Bath_Open":
-                PlayAnimSound(GameObject.Find("bathDoor")?.GetComponent<AudioSource>(), SFXType.WOODENDOOR_OPEN);
+                Play3DSound(GameObject.Find("bathDoor")?.GetComponent<AudioSource>(), SFXType.WOODENDOOR_OPEN);
                 break;
 
             case "Bath_Close":
-                PlayAnimSound(GameObject.Find("bathDoor")?.GetComponent<AudioSource>(), SFXType.WOODENDOOR_CLOSE);
+                Play3DSound(GameObject.Find("bathDoor")?.GetComponent<AudioSource>(), SFXType.WOODENDOOR_CLOSE);
+                break;
+
+            case "Keyboard_Typing":
+                Play3DSound(GameObject.Find("Keyboard")?.GetComponent<AudioSource>(), SFXType.WOODENDOOR_CLOSE);
                 break;
 
             default:

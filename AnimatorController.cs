@@ -11,8 +11,9 @@ public class AnimatorController : MonoBehaviour
     private GameObject lamp;
     private ScreenFader screenFader;
     private MonologueManager monoManager;
-
-    [SerializeField] private GameObject food3;
+    private GameObject food3;
+    private TransparentSwitcher switcher;
+    private Transform playerTF;
 
     private float eatTime = 7f;
 
@@ -24,17 +25,19 @@ public class AnimatorController : MonoBehaviour
         playerMove = GameObject.Find("Player").GetComponent<PlayerMove>();
         rabbit = GameObject.Find("rabbit");
         player = GameObject.Find("Player");
+        playerTF = GameObject.Find("Player").GetComponent<Transform>();
         lamp = GameObject.Find("lamp");
+        food3 = GameObject.Find("food3");
         cam = Camera.main.transform;
         screenFader = FindFirstObjectByType<ScreenFader>();
         monoManager = FindFirstObjectByType<MonologueManager>();
         string currentScene = SceneManager.GetActiveScene().name;
+        switcher = FindFirstObjectByType<TransparentSwitcher>();
 
-
+        playerAnimator = player.GetComponent<Animator>();
+        playerAnimator.enabled = false;
         if (currentScene == "Home")
         {
-            playerAnimator = player.GetComponent<Animator>();
-            playerAnimator.enabled = false;
             lampAnimator = lamp.GetComponent<Animator>();
         }
 
@@ -54,67 +57,50 @@ public class AnimatorController : MonoBehaviour
         yield return new WaitUntil(() => isDone);
     }
 
-    //================= [ 토끼인형 줍는 애니메이션 ] =================//
+    //================[ 토끼 줍는 애니메이션 ]================//
     public void Ani_PickUpRabbit()
     {
-        StartCoroutine(PickUpRabbitAnimation(cam.transform, player.transform));
+        if (playerAnimator != null)
+        {
+            StartCoroutine(PlayPickUpRabbit());
+        }
     }
-
-    private IEnumerator PickUpRabbitAnimation(Transform cam, Transform player)
+    private IEnumerator PlayPickUpRabbit()
     {
         playerMove.canMove = false;
+        playerAnimator.enabled = true;
+        playerAnimator.SetTrigger("pickupRabbit");
+        yield return new WaitForSeconds(2f);
+        switcher.SwitchToTransparent(rabbit);
+        yield return new WaitForSeconds(3f);
 
         // 1. 기존 카메라 roation값 저장
         Quaternion originalCamRot = cam.rotation;
-        Quaternion originalPlayerRot = player.rotation;
+        Quaternion originalPlayerRot = playerTF.rotation;
 
-        // 2. 고개숙이기 (x축:20)
-        float t;
-        Quaternion camDown = Quaternion.Euler(cam.eulerAngles.x + 20f, cam.eulerAngles.y, cam.eulerAngles.z);
-
-        t = 0;
-        while (t < 1.5f)
-        {
-            cam.rotation = Quaternion.Slerp(originalCamRot, camDown, t / 1.5f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-        rabbit.SetActive(false);
-
-        // 3. 고개 들기
-        t = 0;
-        while (t < 1.5f)
-        {
-            cam.rotation = Quaternion.Slerp(camDown, originalCamRot, t / 1.5f);
-            t += Time.deltaTime;
-            yield return null;
-        }
-        cam.rotation = originalCamRot;
-
-
-        // 4. 정면 쳐다보기
+        // 2. 정면 쳐다보기
         Quaternion playerLookFront = Quaternion.Euler(0f, 0f, 0f);
-        Quaternion camLookFront = Quaternion.Euler(7f, 0f, 0f);
+        Quaternion camLookFront = Quaternion.Euler(0f, 0f, 0f);
 
-        t = 0;
+        float t = 0;
         while (t < 1.5f)
         {
-            player.rotation = Quaternion.Lerp(originalPlayerRot, playerLookFront, t / 1.5f);
-            cam.rotation = Quaternion.Lerp(originalCamRot, camLookFront, t / 1.5f);
+            playerTF.rotation = Quaternion.Slerp(originalPlayerRot, playerLookFront, t / 1.5f);
+            cam.rotation = Quaternion.Slerp(originalCamRot, camLookFront, t / 1.5f);
             t += Time.deltaTime;
             yield return null;
         }
 
-        //5. 직진
-        Vector3 originalPlayerPos = player.position;
-        Vector3 targetPos = originalPlayerPos + player.forward * 10f;
+        //3. 직진
+        Vector3 originalPlayerPos = playerTF.position;
+        Vector3 targetPos = originalPlayerPos + playerTF.forward * 10f;
         SoundManager.PlayFootStepSound(FootstepType.ROADFOOTSTEP, 1f, 1.2f);
         screenFader.StartFadeOut(3f);
 
         t = 0;
         while (t < 5f)
         {
-            player.position = Vector3.Lerp(originalPlayerPos, targetPos, t / 5f);
+            playerTF.position = Vector3.Lerp(originalPlayerPos, targetPos, t / 5f);
             t += Time.deltaTime;
             yield return null;
         }
@@ -154,9 +140,8 @@ public class AnimatorController : MonoBehaviour
         player.rotation = Quaternion.Euler(0f, 180f, 0f);
         cam.localPosition = new Vector3(0f, 0.543f, 0f);
         cam.localRotation = Quaternion.Euler(0f, 0f, 0f);
-
-        playerMove.canMove = true;
-
+        playerMove.rt = player.rotation.eulerAngles;
+        playerMove.rt.x = cam.localRotation.eulerAngles.x;
         monoManager.ShowMonologue(Monologue.Home_LetsWork);
     }
 
@@ -177,7 +162,9 @@ public class AnimatorController : MonoBehaviour
         playerAnimator.enabled = true;
 
         playerAnimator.Play("PlayerStayOrigin");
+        SoundManager.PlayLoopSound(LoopType.KEYBOARD_TYPING);
         yield return new WaitForSeconds(7f);
+        SoundManager.StopLoopSound();
 
         playerAnimator.SetBool("focusSound", true);
 
@@ -189,7 +176,9 @@ public class AnimatorController : MonoBehaviour
         yield return WaitForAnimation("PlayerLookOrigin");
 
         playerAnimator.Play("PlayerStayOrigin");
+        SoundManager.PlayLoopSound(LoopType.KEYBOARD_TYPING);
         yield return new WaitForSeconds(7f);
+        SoundManager.StopLoopSound();
 
         playerAnimator.SetBool("focusSound", true);
         yield return WaitForAnimation("PlayerLookRight");
