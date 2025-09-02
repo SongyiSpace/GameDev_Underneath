@@ -11,6 +11,8 @@ public class MonologueManager : MonoBehaviour
     private string[] lines;
     private int currentIndex = -1;
     public bool isBlocked = false;
+    private bool isTyping = false;
+    private float typingSpeed = 0.05f;
 
     private System.Action onComplete;
 
@@ -24,7 +26,7 @@ public class MonologueManager : MonoBehaviour
     void Update()
     {
         // 대사가 보이는 상태면 스페이스바 눌렀을 때 다음 대사 출력
-        if (monologueBG.activeSelf && Input.GetKeyDown(KeyCode.Space) && isBlocked == false) ShowNextLine();
+        if (monologueBG.activeSelf && Input.GetKeyDown(KeyCode.Space) && isBlocked == false && !isTyping) ShowNextLine();
     }
 
     // 대사 배열 받아서 보여주기 + 플레이어 조작 비활성화
@@ -43,7 +45,22 @@ public class MonologueManager : MonoBehaviour
         currentIndex = 0;
         onComplete = callback;
 
-        monologue.text = lines[currentIndex];
+        StopAllCoroutines();
+        StartCoroutine(TypeLine(lines[currentIndex]));
+    }
+
+    //타이핑 효과
+    private IEnumerator TypeLine(string line)
+    {
+        isTyping = true;
+        monologue.text = "";
+
+        foreach (char letter in line)
+        {
+            monologue.text += letter;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+        isTyping = false;
     }
 
     // 다음 대사 출력, 마지막 대사면 대사UI 숨기기 실행
@@ -51,7 +68,12 @@ public class MonologueManager : MonoBehaviour
     {
         currentIndex++;
 
-        if (currentIndex < lines.Length) monologue.text = lines[currentIndex];
+        if (currentIndex < lines.Length)
+        { 
+            StopAllCoroutines();
+            StartCoroutine(TypeLine(lines[currentIndex]));
+        }
+
         else
         {
             HideMonologue();
@@ -76,7 +98,6 @@ public class MonologueManager : MonoBehaviour
     {
         return monologueBG.activeSelf;
     }
-    
 
     //특정 시간동안 대사를 보여주면서 대기
     public void ShowMonologueForSeconds(string[] messages, float waitSeconds)
@@ -86,11 +107,21 @@ public class MonologueManager : MonoBehaviour
 
     private IEnumerator ShowAndHideMonologueRoutine(string[] messages, float waitSeconds)
     {
-        ShowMonologue(messages);
+        if (messages == null || messages.Length == 0)
+        {
+            Debug.LogWarning("대사 배열이 비어있습니다.");
+            yield break;
+        }
+
+        monologueBG.SetActive(true);
+        playerMove.canMove = false;
+
+        lines = messages;
+        currentIndex = 0;
+        yield return StartCoroutine(TypeLine(lines[currentIndex]));
         isBlocked = true;
         yield return new WaitForSeconds(waitSeconds);
         HideMonologue();
         isBlocked = false;
     }
-
 }

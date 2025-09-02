@@ -26,7 +26,6 @@ public class TransparentSwitcher  : MonoBehaviour
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
 
-
             int matCount = renderer.materials.Length;
             Material[] newMats = new Material[matCount];
 

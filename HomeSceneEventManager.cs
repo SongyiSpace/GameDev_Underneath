@@ -75,6 +75,14 @@ public class HomeSceneEventManager : MonoBehaviour
             monoManager.ShowMonologue(Monologue.Home_Start);
 
             currentStep = GameStep.step2_DropRabbit;
+
+
+
+
+
+            monitor.GetComponent<Collider>().enabled = true;
+
+            currentStep = GameStep.step7_Work;
         }
     }
 
@@ -99,7 +107,6 @@ public class HomeSceneEventManager : MonoBehaviour
             food2.GetComponent<Collider>().enabled = true;
             currentStep = GameStep.step4_DropFood_m;
         }
-
     }
 
     public void MicroFood()
@@ -164,6 +171,7 @@ public class HomeSceneEventManager : MonoBehaviour
     {
         if (currentStep == GameStep.step8_Shower)
         {
+            if (interactionManager.isBathSwitchOn == false) return;
             bathDoor.GetComponent<Collider>().enabled = false;
             showerHead.GetComponent<Collider>().enabled = false;
             StartCoroutine(PlayShowerRoutine());
@@ -208,13 +216,12 @@ public class HomeSceneEventManager : MonoBehaviour
         if (currentStep == GameStep.step10_GoToSleep)
         {
             if (interactionManager.isBathSwitchOn || interactionManager.isHallSwitchOn)
-            {
                 monoManager.ShowMonologue(Monologue.Home_HaveToLightOff);
-            }
             else
             {
                 bed.GetComponent<Collider>().enabled = false;
                 animatorController.Ani_Sleep();
+                rabbit.SetActive(false);
             }
             // currentStep = GameStep.step11
         }
